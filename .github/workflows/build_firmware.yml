@@ -6,6 +6,10 @@ on:
 
 jobs:
   build:
+    name: Compile Firmware
+    strategy:
+      matrix:
+        environment: [STM32F103RE_creality]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,4 +18,10 @@ jobs:
           python-version: '3.10'
       - run: pip install -U platformio
         shell: bash
-      - run: platformio run -e STM32F103RE_creality
+      - run: platformio run -e ${{ matrix.environment }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ender3v2-${{ matrix.environment }}-firmware.bin
+          path: .pio/build/**/*.bin
+          compression-level: 0 # no compression - binary firmware compilation.
+          if-no-files-found: error
